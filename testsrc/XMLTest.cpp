@@ -1,22 +1,17 @@
 #include "StringDataSource.h"
 #include "XMLReader.h"
-#include "gtest/gtest.h"  // Include the Google Test header
+#include "gtest/gtest.h" 
 
 
 TEST(CXMLReaderTest, BasicRead) {
-    auto inputStream = std::make_shared<CStringDataSource>("<example>Hello World</example>");
-    CXMLReader reader(inputStream);
-    SXMLEntity entity;
+    auto InputStream = std::make_shared<CStringDataSource>("<example attr=\"Hello World\"></example>");
+    CXMLReader Reader(InputStream);
+    SXMLEntity E;
 
-    EXPECT_TRUE(reader.ReadEntity(entity, false));
-    EXPECT_EQ(entity.DType, SXMLEntity::EType::StartElement);
-    EXPECT_EQ(entity.DNameData, "example");
+    EXPECT_TRUE(Reader.ReadEntity(E));
+    EXPECT_EQ(E.DType, SXMLEntity::EType::StartElement);
+    EXPECT_EQ(E.AttributeValue("attr"), "Hello World");
 
-
-
-    EXPECT_TRUE(reader.ReadEntity(entity, false));
-    EXPECT_EQ(entity.DType, SXMLEntity::EType::EndElement);
-    EXPECT_EQ(entity.DNameData, "example");
-
-    EXPECT_FALSE(reader.ReadEntity(entity, false));
+    EXPECT_TRUE(Reader.ReadEntity(E));
+    EXPECT_EQ(E.DType, SXMLEntity::EType::EndElement);
 }

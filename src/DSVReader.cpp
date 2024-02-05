@@ -1,18 +1,9 @@
 
-// Constructor for DSV reader, src specifies the data source and delimiter
-// specifies the delimiting character
-//CDSVReader(std::shared_ptr< CDataSource > src, char delimiter);
-// Destructor for DSV reader
-//~CDSVReader();
-// Returns true if all rows have been read from the DSV
-//bool End() const;
-// Returns true if the row is successfully read, one string will be put in
-// the row per column
-//bool ReadRow(std::vector< std::string > &row);
+
 #include "DSVReader.h"
 #include <vector>
 #include <string>
-#include "StringDataSource.h"
+
 
 struct CDSVReader::SImplementation {
     std::shared_ptr<CDataSource> DDataSource;
@@ -30,7 +21,7 @@ struct CDSVReader::SImplementation {
         char ch;
         std::string field;
 
-        while (DDataSource->Get(ch) && !End()) {
+        while (DDataSource->Get(ch)) {  //DDataSource->End() was causing the loop to end 1 char too early
             if (ch == DDelimiter) {
                 row.push_back(field);
                 field.clear();
@@ -39,8 +30,11 @@ struct CDSVReader::SImplementation {
             }
         }
 
-        // Add the last field after the last delimiter or until the end
         row.push_back(field);
+
+        if (row.size() == 1 && row[0].empty()) {    //empty strings were being returned as not empty
+        row.pop_back();
+        }
 
         return !row.empty();
     }
