@@ -1,16 +1,61 @@
 #include <gtest/gtest.h>
 #include "StringDataSource.h"
+#include "StringDataSink.h"
 #include "DSVReader.h"
+#include "DSVWriter.h"
 
-/*
+
 //DSVWriter
-auto Sink = std::make_shared<CStringDataSink>();
-CDSVWriter Writer(Sink,'&');
-std::vector<std::string> input = {"Hello", "World!"};
+TEST(CDSVWriterTest, BasicWrite) {
+    auto Sink = std::make_shared<CStringDataSink>();
+    CDSVWriter Writer(Sink,'&');
+    std::vector<std::string> input = {"Hello", "World!"};
 
-EXPECT_TRUE(Writer.WriteRow(input));
-EXPECT_EQ(Sink->String(),"Hello&World!");
-*/
+    EXPECT_TRUE(Writer.WriteRow(input));
+    EXPECT_EQ(Sink->String(),"Hello&World!");
+}
+
+TEST(CDSVWriterTest, QuoteValuesWithDelimiter) {
+    auto Sink = std::make_shared<CStringDataSink>();
+    CDSVWriter Writer(Sink, ',', true);
+    std::vector<std::string> input = {"John", "Doe, Jr.", "30"};
+
+    EXPECT_TRUE(Writer.WriteRow(input));
+    EXPECT_EQ(Sink->String(), "\"John\",\"Doe, Jr.\",\"30\"");
+}
+
+TEST(CDSVWriterTest, ReplaceDoubleQuotes) {
+    auto Sink = std::make_shared<CStringDataSink>();
+    CDSVWriter Writer(Sink, ',', true);
+    std::vector<std::string> input = {"John", "Doe\"Junior", "30"};
+
+    EXPECT_TRUE(Writer.WriteRow(input));
+    EXPECT_EQ(Sink->String(), "\"John\",\"Doe\"\"Junior\",\"30\"");
+}
+
+TEST(CDSVWriterTest, EmptyRow) {
+    auto Sink = std::make_shared<CStringDataSink>();
+    CDSVWriter Writer(Sink, ',', true);
+    std::vector<std::string> input;
+
+    EXPECT_TRUE(Writer.WriteRow(input));
+    EXPECT_EQ(Sink->String(), "");
+}
+
+TEST(CDSVWriterTest, DoubleQuoteAsDelimiter) {
+    auto Sink = std::make_shared<CStringDataSink>();
+    CDSVWriter Writer(Sink, '"', true);
+    std::vector<std::string> input = {"John", "Doe", "30"};
+
+    EXPECT_TRUE(Writer.WriteRow(input));
+    EXPECT_EQ(Sink->String(), "John,Doe,30");
+}
+
+
+
+
+
+
 
 //DSVReader
 TEST(CDSVReaderTest, BasicRead) {
