@@ -7,6 +7,7 @@ Student 1: Danish Rizvi (solo) (919463615)
 ## Project Status
 DSV Reader and Writer functions compile and pass all student tests
 Basic tests for piazza for XML files are being used, additional tests need to be written.
+XMLReader works and passes student tests XML Writer has seg fault
 
 ## Known Issues
 XMLReader and Writer have many issues and will not compile
@@ -94,3 +95,52 @@ Ensure that the function signature in your derived class matches the one in the 
 
 ### Changes 3
 made the function name in my derived class match
+
+### Prompt 4
+
+./include/StringDataSink.h:9:14: error: ‘string’ in namespace ‘std’ does not name a type
+    9 |         std::string DString;
+      |              ^~~~~~
+
+### Response 1
+This error is indicating that the compiler cannot recognize the std::string type in the specified header file (StringDataSink.h). Here are a few things you can check and try to resolve this issue:
+
+Include the <string> header:
+Ensure that your StringDataSink.h file includes the <string> header. Add the following line at the top of your StringDataSink.h file if it's not there already:
+
+cpp
+Copy code
+#include <string>
+Including this header provides the necessary declarations for the std::string type.
+
+Check for typos and case sensitivity:
+Make sure there are no typos in the inclusion of the header and that the case is correct. The #include directive is case-sensitive on some systems.
+
+Check for preprocessor directives:
+Ensure that there are no preprocessor directives (#define, #ifdef, etc.) that might be affecting the inclusion of the <string> header or the definition of std::string.
+
+Verify the namespace usage:
+Double-check that you are using the correct namespace. The code snippet you provided seems to be correct (std::string DString;), but it's worth verifying that there are no conflicting namespace declarations or changes.
+
+Here's an example of what your StringDataSink.h might look like:
+
+cpp
+Copy code
+// StringDataSink.h
+
+#ifndef STRINGDATASINK_H
+#define STRINGDATASINK_H
+
+#include <string>
+
+class StringDataSink {
+public:
+    std::string DString;
+    // Other class members and functions
+};
+
+#endif // STRINGDATASINK_H
+Make sure to address any issues based on the suggestions above, and the error should be resolved. If the problem persists, there might be additional context or code that needs examination.
+
+### Chagnes 1
+Added StringDataSink object file to the makefile and included the header file at the top of cpp file.
