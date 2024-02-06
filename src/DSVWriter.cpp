@@ -1,6 +1,8 @@
 #include "DSVWriter.h"
 #include <vector>
 #include <string>
+#include "StringUtils.h"
+
 
 struct CDSVWriter::SImplementation {
     std::shared_ptr<CDataSink> DSink;
@@ -16,28 +18,27 @@ struct CDSVWriter::SImplementation {
     }
 
     bool WriteRow(const std::vector<std::string> &row) {
+        
         if (!DFirstRow) {
             DSink->Put('\n');  // If not the first row, add newline
         } else {
             DFirstRow = false;
         }
+        if (DDelimiter == '"'){
+            DDelimiter = ',';
+        }
         for (size_t i = 0; i < row.size(); ++i) {
             if (i > 0) {
                 DSink->Put(DDelimiter);
             }
-
-            
-            if (DDelimiter == '"' && row[i] == "\"") {  //double quote as a delimiter
-                DSink->Put(',');
+            if (DQuoteAll || ContainsSpecialCharacters(row[i])) {
+                const std::string quotedString = ConvertToQuotedString(row[i]);
+                DSink->Write(std::vector<char>(quotedString.begin(), quotedString.end()));
             } else {
-                if (DQuoteAll || ContainsSpecialCharacters(row[i])) {
-                    const std::string quotedString = ConvertToQuotedString(row[i]);
-                    DSink->Write(std::vector<char>(quotedString.begin(), quotedString.end()));
-                } else {
-                    const std::string unquotedString = ConvertToUnquotedString(row[i]);
-                    DSink->Write(std::vector<char>(unquotedString.begin(), unquotedString.end()));
-                }
+                const std::string unquotedString = ConvertToUnquotedString(row[i]);
+                DSink->Write(std::vector<char>(unquotedString.begin(), unquotedString.end()));
             }
+            
         }
         return true;
     }
@@ -48,21 +49,31 @@ struct CDSVWriter::SImplementation {
 
 
     std::string ConvertToQuotedString(const std::string &str) {
-        if (ContainsSpecialCharacters(str)) {
-            // Replace a double quote with two double quotes
-            std::string quotedString = "\"" + str;
+
+        if (str.find("\"") != std::string::npos){
             size_t pos = 0;
+            std::string quotedString = str;
             while ((pos = quotedString.find("\"", pos)) != std::string::npos) {
                 quotedString.replace(pos, 1, "\"\"");
                 pos += 2;  // Move past the two double quotes
             }
-            quotedString += "\"";
-            return quotedString;
+            //quotedString += "\"";
+            return "\"" + quotedString + "\"";
         }
-        return str;
+        return "\"" + str + "\"";
     }
 
     std::string ConvertToUnquotedString(const std::string &str) {
+        if (str.find("\"") != std::string::npos){
+            size_t pos = 0;
+            std::string quotedString = str;
+            while ((pos = quotedString.find("\"", pos)) != std::string::npos) {
+                quotedString.replace(pos, 1, "\"\"");
+                pos += 2;  // Move past the two double quotes
+            }
+            //quotedString += "\"";
+            return "\"" + quotedString + "\"";
+        }
         return str;
     }
 };

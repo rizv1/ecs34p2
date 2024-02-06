@@ -28,10 +28,7 @@ struct CXMLReader::SImplementation{
         DEntityQueue.push(TempEntity);
 
     }
-        /*SImplementation(std::shared_ptr< CDataSource > src){
-        DDataSource = src;
-        DXMLParser = XML_ParserCreate(NULL);
-        XML_SetStartElementHandler(DXMLParser, StartElementHandlerCallback);*/
+        
     void CharacterDataHandler(const std::string &cdata) {
         if (!DEntityQueue.empty()) {
             // Append character data to the current entity's name or create a new attribute if needed
@@ -57,6 +54,7 @@ struct CXMLReader::SImplementation{
 
     static void EndElementHandlerCallback(void *context, const XML_Char *name){
         SImplementation *ReaderObject = static_cast <SImplementation *>(context);
+        std::cout << "EndElementHandlerCallback called for " << name << std::endl;
         ReaderObject->EndElementHandler(name);
     };
 
@@ -84,11 +82,14 @@ struct CXMLReader::SImplementation{
         // return entity
         std::vector<char> DataBuffer;
         while(DEntityQueue.empty()){
+            std::cout<<__FILE__<<" @ line: "<<__LINE__<<std::endl;
             if(DDataSource->Read(DataBuffer, 256)){
+                std::cout<<__FILE__<<" @ line: "<<__LINE__<<std::endl;
                 XML_Parse(DXMLParser, DataBuffer.data(), DataBuffer.size(), DataBuffer.size() < 256);
             }
             else{
-                XML_Parse(DXMLParser, DataBuffer.data(), 0, true);
+                std::cout<<__FILE__<<" @ line: "<<__LINE__<<std::endl;
+                XML_Parse(DXMLParser, DataBuffer.data(), DataBuffer.size(), true);
             }
         }
         if(DEntityQueue.empty()){

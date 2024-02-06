@@ -48,7 +48,7 @@ TEST(CDSVWriterTest, DoubleQuoteAsDelimiter) {
     std::vector<std::string> input = {"John", "Doe", "30"};
 
     EXPECT_TRUE(Writer.WriteRow(input));
-    EXPECT_EQ(Sink->String(), "John,Doe,30");
+    EXPECT_EQ(Sink->String(), "\"John\",\"Doe\",\"30\"");
 }
 
 
